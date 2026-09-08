@@ -17,6 +17,8 @@ model = genai.GenerativeModel("models/gemini-3.5-flash")
 
 app = FastAPI()
 
+chat_history = []
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,27 +41,23 @@ def health():
 @app.post("/chat")
 def chat(req: ChatRequest):
 
-    today = datetime.now().strftime("%A, %d %B %Y %I:%M %p")
+    global chat_history
 
-    SYSTEM_PROMPT = f"""
-    You are a helpful AI assistant.
-
-    Current date and time: {today}
-
-    Rules:
-    - Answer clearly.
-    - Be concise unless asked for details.
-    - If user asks today's date or day, use the current date above.
-    """
+    chat_history.append(f"User: {req.message}")
 
     prompt = f"""
-    {SYSTEM_PROMPT}
+    You are a helpful AI assistant.
+
+    Conversation History:
+    {chr(10).join(chat_history)}
 
     User: {req.message}
     """
 
     response = model.generate_content(prompt)
 
-    return {
-        "reply": response.text
-    }
+    ai_reply = response.text
+
+    chat_history.append(f"Assistant: {ai_reply}")
+
+    return {"reply": ai_reply}
