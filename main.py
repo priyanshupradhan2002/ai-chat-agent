@@ -61,4 +61,4 @@ def chat(req: ChatRequest):
 
     chat_history.append(f"Assistant: {ai_reply}")
 
-    return {"reply": ai_reply}
+    return {"response": ai_reply}
