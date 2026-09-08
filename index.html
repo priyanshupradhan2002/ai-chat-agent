@@ -2,36 +2,161 @@
 <html>
 <head>
     <title>AI Chat Agent</title>
-</head>
-<body>
-    <h1>AI Chat Agent</h1>
 
-    <input type="text" id="message" placeholder="Ask something">
-    <button onclick="sendMessage()">Send</button>
-
-    <div id="response"></div>
-
-    <script>
-        async function sendMessage() {
-
-            let msg = document.getElementById("message").value;
-
-            let res = await fetch("/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: msg
-                })
-            });
-
-            let data = await res.json();
-
-            document.getElementById("response").innerHTML =
-                "<b>AI:</b> " + data.reply;
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-    </script>
+
+        .chat-container {
+            width: 80%;
+            max-width: 1000px;
+            height: 85vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .user {
+            text-align: right;
+            margin: 10px;
+        }
+
+        .user span {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px;
+            display: inline-block;
+            max-width: 70%;
+        }
+
+        .bot {
+            text-align: left;
+            margin: 10px;
+        }
+
+        .bot span {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 12px;
+            display: inline-block;
+            max-width: 70%;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        #message {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+
+        button {
+            margin-left: 10px;
+            padding: 12px 25px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+
+    <div class="header">
+        🤖 AI Chat Agent
+    </div>
+
+    <div id="chat-box">
+        <div class="bot">
+            <span>Hello! How can I help you today?</span>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="message" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+
+async function sendMessage() {
+
+    let message = document.getElementById("message").value;
+
+    if (!message) return;
+
+    let chatBox = document.getElementById("chat-box");
+
+    chatBox.innerHTML += `
+        <div class="user">
+            <span>${message}</span>
+        </div>
+    `;
+
+    document.getElementById("message").value = "";
+
+    let response = await fetch("/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    });
+
+    let data = await response.json();
+
+    chatBox.innerHTML += `
+        <div class="bot">
+            <span>${data.response}</span>
+        </div>
+    `;
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+</script>
 
 </body>
 </html>
